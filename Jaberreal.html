@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR FOOD - ঝটপট অর্ডার</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --main-red: #e63946; 
+            --gold: #ffb703; 
+            --black-bg: #000000; 
+        }
+        
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background: #f8fafc; 
+            margin: 0; 
+            padding-bottom: 100px; 
+        }
+
+        /* হেডার ও লোগো সেকশন */
+        .hero { 
+            background: var(--black-bg); 
+            color: white; 
+            text-align: center; 
+            padding: 40px 20px; 
+            border-bottom: 4px solid var(--gold);
+        }
+
+        .logo-box {
+            width: 155px; 
+            height: 155px; 
+            background: #ffffff; 
+            border-radius: 50%;
+            margin: 0 auto 15px; 
+            border: 4px solid var(--gold); 
+            overflow: hidden;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(255, 183, 3, 0.5);
+        }
+
+        .logo-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .hero h1 { margin: 10px 0; font-size: 35px; color: var(--gold); letter-spacing: 1.5px; }
+        .hero p { margin: 5px 0; opacity: 0.9; font-size: 15px; }
+        .hero i { color: var(--gold); margin-right: 5px; }
+
+        /* মেনু লিস্ট */
+        .container { max-width: 500px; margin: 25px auto; padding: 0 15px; }
+        
+        .food-item {
+            background: white; border-radius: 20px; display: flex; align-items: center;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .food-img { width: 85px; height: 85px; border-radius: 15px; object-fit: cover; }
+        .food-info { flex: 1; margin-left: 15px; }
+        .food-info h3 { margin: 0; font-size: 18px; color: #1e293b; }
+        .food-price { color: var(--main-red); font-weight: 700; font-size: 17px; margin-top: 5px; }
+
+        /* কন্ট্রোল বাটন */
+        .controls { display: flex; align-items: center; gap: 12px; background: #f1f5f9; padding: 8px 12px; border-radius: 12px; }
+        .btn-qty { width: 32px; height: 32px; border-radius: 8px; border: none; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .btn-minus { background: #cbd5e1; color: #334155; }
+        .btn-plus { background: var(--gold); color: white; }
+        .qty-num { font-weight: bold; min-width: 20px; text-align: center; }
+
+        /* স্টিকি কার্ট */
+        .floating-cart {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            background: var(--main-red); color: white; width: 90%; max-width: 450px;
+            padding: 16px 25px; border-radius: 50px; display: none;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 25px rgba(230, 57, 70, 0.4); z-index: 1000;
+            border: none; cursor: pointer; font-size: 17px; font-weight: bold;
+        }
+
+        #orderModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .modal-card { background: white; width: 85%; max-width: 400px; padding: 30px; border-radius: 25px; }
+        input, textarea { width: 100%; padding: 14px; margin: 12px 0; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        .confirm-btn { background: #22c55e; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="logo-box">
+        <img src="https://i.ibb.co.com/k6D8nkF7/1000010071.png" alt="MR FOOD Logo">
+    </div>
+    <h1>MR FOOD</h1>
+    <p>ENJOY YOUR FOOD EST. 2024</p>
+    <p><i class="fas fa-map-marker-alt"></i> MADRASA GATE, AMISHAPARA</p>
+    <p><i class="fas fa-phone-alt"></i> 01826498546</p> </div>
+
+<div class="container" id="menu-list"></div>
+
+<button class="floating-cart" id="cartBar" onclick="openModal()">
+    <span><i class="fas fa-shopping-cart"></i> <span id="cartCount">0</span>টি আইটেম</span>
+    <span>অর্ডার (৳<span id="cartTotal">0</span>)</span>
+</button>
+
+<div id="orderModal">
+    <div class="modal-card">
+        <h3 style="text-align:center; margin-top:0;">আপনার তথ্য দিন</h3>
+        <input type="text" id="custName" placeholder="আপনার নাম">
+        <textarea id="custAddr" placeholder="বিস্তারিত ঠিকানা"></textarea>
+        <button class="confirm-btn" onclick="sendToWhatsApp()">WhatsApp-এ অর্ডার পাঠান</button>
+        <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:15px; cursor:pointer;">বন্ধ করুন</button>
+    </div>
+</div>
+
+<script>
+    const foodItems = [
+        { id: 1, name: 'রেগুলার বার্গার', price: 100, img: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=200' },
+        { id: 2, name: 'বিফ বার্গার', price: 250, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+        { id: 3, name: 'কোমবো বার্গার', price: 350, img: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=200' },
+        { id: 4, name: 'ফ্রাইড চিকেন', price: 120, img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=200' },
+        { id: 5, name: 'চিকেন বক্স', price: 150, img: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=200' }
+    ];
+
+    let cart = {};
+
+    function renderMenu() {
+        document.getElementById('menu-list').innerHTML = foodItems.map(item => `
+            <div class="food-item">
+                <img src="${item.img}" class="food-img">
+                <div class="food-info">
+                    <h3>${item.name}</h3>
+                    <div class="food-price">৳${item.price}</div>
+                </div>
+                <div class="controls">
+                    <button class="btn-qty btn-minus" onclick="changeQty(${item.id}, -1)">-</button>
+                    <span class="qty-num" id="qty-${item.id}">${cart[item.id] || 0}</span>
+                    <button class="btn-qty btn-plus" onclick="changeQty(${item.id}, 1)">+</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function changeQty(id, delta) {
+        cart[id] = (cart[id] || 0) + delta;
+        if (cart[id] < 0) cart[id] = 0;
+        document.getElementById(`qty-${id}`).innerText = cart[id];
+        updateCart();
+    }
+
+    function updateCart() {
+        let count = 0, total = 0;
+        foodItems.forEach(item => {
+            if (cart[item.id]) {
+                count += cart[item.id];
+                total += (cart[item.id] * item.price);
+            }
+        });
+        document.getElementById('cartBar').style.display = count > 0 ? 'flex' : 'none';
+        document.getElementById('cartCount').innerText = count;
+        document.getElementById('cartTotal').innerText = total;
+    }
+
+    function openModal() { document.getElementById('orderModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('orderModal').style.display = 'none'; }
+
+    function sendToWhatsApp() {
+        const name = document.getElementById('custName').value;
+        const addr = document.getElementById('custAddr').value;
+        if (!name || !addr) return alert("নাম ও ঠিকানা দিন");
+
+        let orderMsg = `*অর্ডার (MR FOOD)*%0A*নাম:* ${name}%0A*ঠিকানা:* ${addr}%0A*আইটেম:*%0A`;
+        foodItems.forEach(item => {
+            if (cart[item.id] > 0) orderMsg += `• ${item.name} x ${cart[item.id]}%0A`;
+        });
+        
+        // হোয়াটসঅ্যাপ নম্বর আপডেট করা হয়েছে
+        window.open(`https://wa.me/8801826498546?text=${orderMsg}`, '_blank');
+    }
+
+    renderMenu();
+</script>
+</body>
+</html>
